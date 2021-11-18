@@ -1,10 +1,9 @@
-
 import java.io.*;
 import java.util.ArrayList;
 
 
 public class Data_Util {
-    private static String SourceFileName;
+    //private static String SourceFileName;
     private static final String TargetFileName1 = "Pass_fail.csv";
     private static final String TargetFileName2 = "Errors.csv";
 
@@ -13,14 +12,18 @@ public class Data_Util {
     private static final ArrayList<String> failedList = new ArrayList<>();
     private static final ArrayList<String> manualCheckList = new ArrayList<>();
     private static final ArrayList<String> errorsList = new ArrayList<>();
+    private static final ArrayList<String> fileList = new ArrayList<>();
     private static String formattedIdString;
 
 
     public static void main(String[] args) {
-        SourceFileName = "test-Output_preparation.atr";
-        readFileForPassFailCSV(SourceFileName);
-        readFileForErrorsCSV(SourceFileName);
-
+        //SourceFileName = "test-Output_preparation.atr";
+        readAllFilesInDirectory();
+        //System.out.println("LOG: FILE LIST" + fileList);
+        for(String SourceFileName: fileList) {
+            readFileForPassFailCSV(SourceFileName);
+           // readFileForErrorsCSV(SourceFileName);
+        }
     }
 
     //function to read file name and check for string
@@ -62,14 +65,14 @@ public class Data_Util {
                 createPassFailCSV();
             }
             for (String manualCheck : manualCheckList) {
-                appendPassFailCSV(SourceFileName, manualCheck, "Failed", "Manual check required");
+                appendPassFailCSV(fileName, manualCheck, "Failed", "Manual check required");
             }
             for (String failed : failedList) {
-                appendPassFailCSV(SourceFileName, failed, "FAILED", "");
+                appendPassFailCSV(fileName, failed, "FAILED", "");
             }
 
             for (String passed : passedList) {
-                appendPassFailCSV(SourceFileName, passed, "PASSED", "");
+                appendPassFailCSV(fileName, passed, "PASSED", "");
             }
 
             //Close the input stream
@@ -91,7 +94,7 @@ public class Data_Util {
             //Read File Line By Line
             while ((strLine = br.readLine()) != null) {
                 // Print the content on the console
-                if (strLine.contains("Tests with Stub Failures")) {
+                if (strLine.contains("Tests with Stub Failures ")) {
                     if (strLine.contains("0")) {
                         System.out.println("LOG:TESTING" + strLine);
                         errorsList.add("NO");
@@ -100,7 +103,7 @@ public class Data_Util {
                         errorsList.add("YES");
                     }
                 }
-                if (strLine.contains("Script Errors")) {
+                if (strLine.contains("Script Errors ")) {
                     if (strLine.contains("0")) {
                         System.out.println("LOG:TESTING" + strLine);
                         errorsList.add("NO");
@@ -118,6 +121,7 @@ public class Data_Util {
                         errorsList.add("YES");
                     }
                 }
+                System.out.println("LOG:ErrorLISt" + errorsList);
             }
 
             //check if file exists
@@ -125,7 +129,7 @@ public class Data_Util {
             if (!file.exists()) {
                 createErrorsCSV();
             }
-            appendErrorsCSV(SourceFileName, errorsList.get(0), errorsList.get(1), errorsList.get(2));
+            appendErrorsCSV(fileName, errorsList.get(0), errorsList.get(1), errorsList.get(2));
 
             //Close the input stream
             in.close();
@@ -245,6 +249,17 @@ public class Data_Util {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    //read all files in a directory and store in a list
+    static void readAllFilesInDirectory() {
+        File directory = new File("/media/krishnasatish/KSAT_DRIVE/Code/Java_files/Accord_Data_utility/input_files");
+        File[] fList = directory.listFiles();
+        assert fList != null;
+        for (File file : fList) {
+            if (file.isFile()) {
+                fileList.add(file.getName());
+            }
         }
     }
 }
